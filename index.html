@@ -3,92 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control — Operaciones Masivos</title>
+    <title>Suite Operativa Central</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        /* Evitamos barras de desplazamiento dobles en la ventana principal */
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
+        body, html { height: 100%; margin: 0; overflow: hidden; }
+        /* Efecto de borde izquierdo rojo al pasar el mouse o estar activo */
+        .sidebar-item { transition: all 0.2s; border-left: 4px solid transparent; }
+        .sidebar-item:hover { background: #1e293b; border-left: 4px solid #ef4444; }
+        .sidebar-item.active { background: #1e293b; border-left: 4px solid #ef4444; color: white; }
     </style>
 </head>
-<body class="bg-gray-100 flex flex-col h-screen">
+<body class="flex h-screen bg-gray-100">
 
-    <nav class="bg-slate-900 text-white shadow-md z-10 shrink-0">
-        <div class="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <span class="text-xl">🛠️</span>
-                <div>
-                    <h1 class="text-md font-bold leading-tight">Panel de Control Centralizado</h1>
-                    <p class="text-xs text-slate-400">Automatización de Procesos Certificados</p>
-                </div>
+    <nav class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 shadow-2xl z-30 my-4 ml-4 rounded-3xl border border-slate-800">
+        <div class="p-6 border-b border-slate-800">
+            <h1 class="text-white font-bold text-lg">Panel de Control</h1>
+            <p class="text-xs text-slate-500 uppercase tracking-widest mt-1">Automatización de Procesos</p>
+        </div>
+        
+        <div class="flex-grow py-6 px-3 space-y-4 overflow-y-auto">
+            
+            <div class="space-y-1">
+                <button id="btn-home" onclick="regresarHome(this)" class="sidebar-item active w-full text-left px-4 py-3 text-sm rounded-r-lg font-medium flex items-center gap-2">
+                    🏠 Inicio / Panel
+                </button>
+            </div>
+
+            <div class="space-y-2">
+                <p class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Herramientas Principales</p>
+                <button onclick="cargarApp('app3', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">🧮 Cálculo Primas</button>
+                <button onclick="cargarApp('app4', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">🔍 Extractor PDF</button>
+                <button onclick="cargarApp('app2', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">📦 Generador Masivo</button>
             </div>
             
-            <div class="flex gap-2">
-                <button id="btn-app1" onclick="cargarApp('app1')" 
-                    class="px-5 py-2 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition cursor-pointer">
-                    1. Normalizador Doc
-                </button>
-                <button id="btn-app2" onclick="cargarApp('app2')" 
-                    class="px-5 py-2 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition cursor-pointer">
-                    2. Generador Masivo 
-                </button>
+            <div class="space-y-2 pt-2">
+                <p class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Utilidades y Filtros</p>
+                <button onclick="cargarApp('app1', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">📄 Normalizador Data</button>
+                <button onclick="cargarApp('app5', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">📑 Filtro TXT Pólizas</button>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 bg-slate-950/40 rounded-b-3xl flex flex-col gap-3">
+            <div class="bg-slate-800/50 rounded-xl p-3 border border-slate-800 text-center">
+                <p class="text-[11px] text-slate-400 font-medium mb-2">¿Problemas con el Panel?</p>
+                
+                <a href="mailto:ggengel@mapfre.com.pe?subject=Soporte%20-%20Panel%20de%20Control" class="inline-flex items-center justify-center gap-1.5 w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold py-2 px-3 rounded-lg transition shadow-sm cursor-pointer">
+                    📧 Contactar Soporte
+                </a>
+            </div>
+            
+            <div class="text-center text-[10px] text-slate-500 font-medium tracking-wide">
+                <span>⚡ Desarrollado por </span>
+                <span class="text-slate-400 font-semibold hover:text-red-400 transition cursor-default">Engel</span>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow w-full relative bg-slate-50">
+    <main class="flex-grow relative bg-white my-4 mx-4 rounded-3xl shadow-lg overflow-hidden border border-gray-200">
         
-        <div id="pantalla-bienvenida" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-0">
-            <div class="max-w-md bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
-                <span class="text-5xl block mb-4">🚀</span>
-                <h2 class="text-xl font-bold text-gray-800 mb-2">Bienvenido al Gestor de Herramientas</h2>
-                <p class="text-gray-500 text-sm mb-6">Selecciona una aplicación en la barra superior para cargar el entorno de trabajo.</p>
-                <div class="text-xs text-gray-400 bg-gray-50 p-2.5 rounded-lg border border-gray-100 font-mono">
-                    Flujo ideal: Normaliza tus archivos primero antes de procesar la emisión masiva de certificados.
+        <div id="bienvenida" class="absolute inset-0 flex items-center justify-center z-20 bg-white p-6">
+            <div class="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 text-center max-w-sm">
+                <span class="text-6xl mb-6 block animate-bounce">🚀</span>
+                <h2 class="text-2xl font-bold text-slate-800 mb-3">Bienvenido al Gestor de Herramientas</h2>
+                <p class="text-slate-500 mb-6">Selecciona una aplicación en la barra lateral para cargar el entorno de trabajo.</p>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 text-xs text-slate-400 font-mono">
+                    Flujo ideal: Normaliza tus archivos primero antes de procesar la emisión masiva.
                 </div>
             </div>
         </div>
 
-        <iframe id="contenedor-apps" class="w-full h-full border-none hidden relative z-10" src=""></iframe>
-        
+        <div id="loader" class="absolute inset-0 flex items-center justify-center bg-white z-10 hidden">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600 mx-auto mb-3"></div>
+                <p class="text-xs text-slate-400 animate-pulse">Cargando aplicación...</p>
+            </div>
+        </div>
+
+        <iframe id="contenedor-apps" class="w-full h-full border-none relative z-0 hidden" src=""></iframe>
     </main>
 
     <script>
-        // URLs directas de tus despliegues actuales
         const urls = {
+            'app3': 'https://calculo-primas-seguros.streamlit.app/?embed=true',
+            'app4': 'https://engel1409-extrae-datos-pdf-app-jtdzw5.streamlit.app/?embed=true',
+            'app2': 'https://generador-certificados.engel-ym.workers.dev/',
             'app1': 'https://normalizador.streamlit.app/?embed=true',
-            'app2': 'https://generador-certificados.engel-ym.workers.dev/'
+            'app5': 'https://filtratxtpolizas.streamlit.app/?embed=true'
         };
 
-        function cargarApp(idApp) {
+        function cargarApp(id, btn) {
             const iframe = document.getElementById('contenedor-apps');
-            const bienvenida = document.getElementById('pantalla-bienvenida');
-            const btn1 = document.getElementById('btn-app1');
-            const btn2 = document.getElementById('btn-app2');
+            const bienvenida = document.getElementById('bienvenida');
+            const loader = document.getElementById('loader');
+            
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
 
-            // 1. Mostrar el iframe y ocultar la bienvenida
             bienvenida.classList.add('hidden');
-            iframe.classList.remove('hidden');
+            iframe.classList.add('hidden');
+            loader.classList.remove('hidden');
 
-            // 2. Cambiar la URL del iframe si es diferente a la actual (evita recargas innecesarias)
-            if (iframe.src !== urls[idApp]) {
-                iframe.src = urls[idApp];
-            }
+            iframe.src = urls[id];
 
-            // 3. Manejo de estilos activos en los botones (Efecto visual de pestaña seleccionada)
-            if (idApp === 'app1') {
-                btn1.className = "px-5 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white shadow-md transition cursor-pointer";
-                btn2.className = "px-5 py-2 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition cursor-pointer";
-            } else {
-                btn1.className = "px-5 py-2 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition cursor-pointer";
-                btn2.className = "px-5 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white shadow-md transition cursor-pointer";
-            }
+            iframe.onload = () => {
+                loader.classList.add('hidden');
+                iframe.classList.remove('hidden');
+            };
+        }
+
+        function regresarHome(btn) {
+            const iframe = document.getElementById('contenedor-apps');
+            const bienvenida = document.getElementById('bienvenida');
+            const loader = document.getElementById('loader');
+
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+
+            loader.classList.add('hidden');
+            iframe.classList.add('hidden');
+            bienvenida.classList.remove('hidden');
+
+            iframe.src = "";
         }
     </script>
-
 </body>
 </html>
