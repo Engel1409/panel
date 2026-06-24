@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control — Operaciones Masivos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* Evitamos barras de desplazamiento dobles en la ventana principal */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col h-screen">
+
+    <nav class="bg-slate-900 text-white shadow-md z-10 shrink-0">
+        <div class="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-xl">🛠️</span>
+                <div>
+                    <h1 class="text-md font-bold leading-tight">Panel de Control Centralizado</h1>
+                    <p class="text-xs text-slate-400">Suite de Automatización de Procesos</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button id="btn-app1" onclick="cargarApp('app1')" 
+                    class="px-5 py-2 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition cursor-pointer">
+                    1. Normalizador (POLIDATA)
+                </button>
+                <button id="btn-app2" onclick="cargarApp('app2')" 
+                    class="px-5 py-2 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition cursor-pointer">
+                    2. Generador Masivo (Doc_local)
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full relative bg-slate-50">
+        
+        <div id="pantalla-bienvenida" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-0">
+            <div class="max-w-md bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                <span class="text-5xl block mb-4">🚀</span>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Bienvenido al Gestor de Herramientas</h2>
+                <p class="text-gray-500 text-sm mb-6">Selecciona una aplicación en la barra superior para cargar el entorno de trabajo.</p>
+                <div class="text-xs text-gray-400 bg-gray-50 p-2.5 rounded-lg border border-gray-100 font-mono">
+                    Flujo ideal: Normaliza tus archivos primero antes de procesar la emisión masiva.
+                </div>
+            </div>
+        </div>
+
+        <iframe id="contenedor-apps" class="w-full h-full border-none hidden relative z-10" src=""></iframe>
+        
+    </main>
+
+    <script>
+        // URLs directas de tus despliegues actuales
+        const urls = {
+            'app1': 'https://normalizador.streamlit.app/?embed=true',
+            'app2': 'https://generador-certificados.engel-ym.workers.dev/'
+        };
+
+        function cargarApp(idApp) {
+            const iframe = document.getElementById('contenedor-apps');
+            const bienvenida = document.getElementById('pantalla-bienvenida');
+            const btn1 = document.getElementById('btn-app1');
+            const btn2 = document.getElementById('btn-app2');
+
+            // 1. Mostrar el iframe y ocultar la bienvenida
+            bienvenida.classList.add('hidden');
+            iframe.classList.remove('hidden');
+
+            // 2. Cambiar la URL del iframe si es diferente a la actual (evita recargas innecesarias)
+            if (iframe.src !== urls[idApp]) {
+                iframe.src = urls[idApp];
+            }
+
+            // 3. Manejo de estilos activos en los botones (Efecto visual de pestaña seleccionada)
+            if (idApp === 'app1') {
+                btn1.className = "px-5 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white shadow-md transition cursor-pointer";
+                btn2.className = "px-5 py-2 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition cursor-pointer";
+            } else {
+                btn1.className = "px-5 py-2 rounded-lg text-sm font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition cursor-pointer";
+                btn2.className = "px-5 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white shadow-md transition cursor-pointer";
+            }
+        }
+    </script>
+
+</body>
+</html>
