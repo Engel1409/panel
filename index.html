@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         body, html { height: 100%; margin: 0; overflow: hidden; }
-        /* Efecto de borde izquierdo rojo al pasar el mouse o estar activo */
         .sidebar-item { transition: all 0.2s; border-left: 4px solid transparent; }
         .sidebar-item:hover { background: #1e293b; border-left: 4px solid #ef4444; }
         .sidebar-item.active { background: #1e293b; border-left: 4px solid #ef4444; color: white; }
@@ -22,7 +21,6 @@
         </div>
         
         <div class="flex-grow py-6 px-3 space-y-4 overflow-y-auto">
-            
             <div class="space-y-1">
                 <button id="btn-home" onclick="regresarHome(this)" class="sidebar-item active w-full text-left px-4 py-3 text-sm rounded-r-lg font-medium flex items-center gap-2">
                     🏠 Inicio / Panel
@@ -31,27 +29,25 @@
 
             <div class="space-y-2">
                 <p class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Herramientas Principales</p>
-                <button onclick="cargarApp('app3', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">🧮 Cálculo Primas</button>
-                <button onclick="cargarApp('app4', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">🔍 Extractor PDF</button>
-                <button onclick="cargarApp('app2', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">📦 Generador Masivo</button>
+                <button onclick="cargarApp('app3', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">🧮 Adventistas</button>
+                <button onclick="cargarApp('app4', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">🔍 Marsh PDF</button>
+                <button onclick="cargarApp('app2', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">📦 Generador Masivo cerificados</button>
             </div>
             
             <div class="space-y-2 pt-2">
                 <p class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Utilidades y Filtros</p>
-                <button onclick="cargarApp('app1', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">📄 Normalizador Data</button>
-                <button onclick="cargarApp('app5', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">📑 Filtro TXT Pólizas</button>
+                <button onclick="cargarApp('app1', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">📄 Normalizador</button>
+                <button onclick="cargarApp('app5', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">📑 Filtro Txt Marsh</button>
             </div>
         </div>
 
         <div class="p-4 border-t border-slate-800 bg-slate-950/40 rounded-b-3xl flex flex-col gap-3">
             <div class="bg-slate-800/50 rounded-xl p-3 border border-slate-800 text-center">
                 <p class="text-[11px] text-slate-400 font-medium mb-2">¿Problemas con el Panel?</p>
-                
                 <a href="mailto:ggengel@mapfre.com.pe?subject=Soporte%20-%20Panel%20de%20Control" class="inline-flex items-center justify-center gap-1.5 w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold py-2 px-3 rounded-lg transition shadow-sm cursor-pointer">
                     📧 Contactar Soporte
                 </a>
             </div>
-            
             <div class="text-center text-[10px] text-slate-500 font-medium tracking-wide">
                 <span>⚡ Desarrollado por </span>
                 <span class="text-slate-400 font-semibold hover:text-red-400 transition cursor-default">Engel</span>
@@ -67,7 +63,7 @@
                 <h2 class="text-2xl font-bold text-slate-800 mb-3">Bienvenido al Gestor de Herramientas</h2>
                 <p class="text-slate-500 mb-6">Selecciona una aplicación en la barra lateral para cargar el entorno de trabajo.</p>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 text-xs text-slate-400 font-mono">
-                    Flujo ideal: Normaliza tus archivos primero antes de procesar la emisión masiva.
+                    Flujo ideal: Normaliza tus archivos primero antes de usar el generador masivo certificados.
                 </div>
             </div>
         </div>
@@ -75,7 +71,19 @@
         <div id="loader" class="absolute inset-0 flex items-center justify-center bg-white z-10 hidden">
             <div class="text-center">
                 <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600 mx-auto mb-3"></div>
-                <p class="text-xs text-slate-400 animate-pulse">Cargando aplicación...</p>
+                <p id="loader-msg" class="text-xs text-slate-400 animate-pulse">Cargando aplicación...</p>
+            </div>
+        </div>
+
+        <!-- Pantalla de error -->
+        <div id="error-panel" class="absolute inset-0 flex items-center justify-center bg-white z-10 hidden">
+            <div class="text-center max-w-sm">
+                <span class="text-5xl mb-4 block">⚠️</span>
+                <h3 class="text-lg font-bold text-slate-700 mb-2">No se pudo cargar la aplicación</h3>
+                <p class="text-sm text-slate-400 mb-4">La herramienta tardó demasiado o no está disponible en este momento.</p>
+                <button onclick="reintentar()" class="bg-red-600 hover:bg-red-500 text-white text-sm font-semibold py-2 px-5 rounded-lg transition">
+                    🔄 Reintentar
+                </button>
             </div>
         </div>
 
@@ -83,44 +91,78 @@
     </main>
 
     <script>
-        const urls = {
-            'app3': 'https://calculo-primas-seguros.streamlit.app/?embed=true',
-            'app4': 'https://engel1409-extrae-datos-pdf-app-jtdzw5.streamlit.app/?embed=true',
-            'app2': 'https://generador-certificados.engel-ym.workers.dev/',
-            'app1': 'https://normalizador.streamlit.app/?embed=true',
-            'app5': 'https://filtratxtpolizas.streamlit.app/?embed=true'
+        // Preparado para escalar: agrega más apps aquí sin tocar el HTML
+        const apps = {
+            app1: { url: 'https://normalizador.streamlit.app/?embed=true' },
+            app2: { url: 'https://generador-certificados.engel-ym.workers.dev/' },
+            app3: { url: 'https://calculo-primas-seguros.streamlit.app/?embed=true' },
+            app4: { url: 'https://engel1409-extrae-datos-pdf-app-jtdzw5.streamlit.app/?embed=true' },
+            app5: { url: 'https://filtratxtpolizas.streamlit.app/?embed=true' },
         };
+
+        let timeoutId = null;
+        let appActual = null;
 
         function cargarApp(id, btn) {
             const iframe = document.getElementById('contenedor-apps');
             const bienvenida = document.getElementById('bienvenida');
             const loader = document.getElementById('loader');
-            
+            const errorPanel = document.getElementById('error-panel');
+
+            appActual = id;
+
             document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             btn.classList.add('active');
 
             bienvenida.classList.add('hidden');
             iframe.classList.add('hidden');
+            errorPanel.classList.add('hidden');
             loader.classList.remove('hidden');
 
-            iframe.src = urls[id];
+            // Limpiar timeout anterior si existía
+            if (timeoutId) clearTimeout(timeoutId);
+
+            iframe.src = apps[id].url;
 
             iframe.onload = () => {
-                loader.classList.add('hidden');
-                iframe.classList.remove('hidden');
+                // Pequeño delay para que Streamlit termine de renderizar
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    errorPanel.classList.add('hidden');
+                    iframe.classList.remove('hidden');
+                    if (timeoutId) clearTimeout(timeoutId);
+                }, 1200);
             };
+
+            // Si después de 20s no cargó, mostrar error
+            timeoutId = setTimeout(() => {
+                loader.classList.add('hidden');
+                iframe.classList.add('hidden');
+                errorPanel.classList.remove('hidden');
+            }, 20000);
+        }
+
+        function reintentar() {
+            if (!appActual) return;
+            const btnActivo = document.querySelector('.sidebar-item.active');
+            cargarApp(appActual, btnActivo);
         }
 
         function regresarHome(btn) {
             const iframe = document.getElementById('contenedor-apps');
             const bienvenida = document.getElementById('bienvenida');
             const loader = document.getElementById('loader');
+            const errorPanel = document.getElementById('error-panel');
+
+            if (timeoutId) clearTimeout(timeoutId);
+            appActual = null;
 
             document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             btn.classList.add('active');
 
             loader.classList.add('hidden');
             iframe.classList.add('hidden');
+            errorPanel.classList.add('hidden');
             bienvenida.classList.remove('hidden');
 
             iframe.src = "";
