@@ -101,19 +101,29 @@
         let timeoutId = null;
         let appActual = null;
 
-        // Precalienta todas las sesiones de Streamlit al cargar la página
-        async function precalentarApps() {
-            const streamlitApps = Object.values(apps).filter(a => a.url.includes('streamlit.app'));
-            for (const app of streamlitApps) {
-                try {
-                    await fetch(app.url, { mode: 'no-cors', credentials: 'include' });
-                } catch(e) {}
-                // Pausa entre requests para no saturar
-                await new Promise(r => setTimeout(r, 300));
-            }
+        // NUEVO MÉTODO: Precalentamiento mediante Iframes Invisibles para evadir restricciones de CORS
+        function precalentarApps() {
+            const streamlitApps = Object.entries(apps).filter(([id, app]) => app.url.includes('streamlit.app'));
+            
+            streamlitApps.forEach(([id, app], index) => {
+                setTimeout(() => {
+                    // Crear iframe oculto
+                    const iframeOculto = document.createElement('iframe');
+                    iframeOculto.src = app.url;
+                    iframeOculto.style.position = 'absolute';
+                    iframeOculto.style.width = '0px';
+                    iframeOculto.style.height = '0px';
+                    iframeOculto.style.border = 'none';
+                    iframeOculto.style.visibility = 'hidden';
+                    iframeOculto.id = `preload-${id}`;
+                    
+                    document.body.appendChild(iframeOculto);
+                }, index * 1200); // Carga escalonada cada 1.2 segundos para no saturar el navegador
+            });
         }
 
-        window.addEventListener('load', precalentarApps);
+        // Se ejecuta tan pronto como el DOM esté listo
+        window.addEventListener('DOMContentLoaded', precalentarApps);
 
         function cargarApp(id, btn) {
             const iframe = document.getElementById('contenedor-apps');
@@ -143,6 +153,10 @@
                     errorPanel.classList.add('hidden');
                     iframe.classList.remove('hidden');
                     if (timeoutId) clearTimeout(timeoutId);
+                    
+                    // Opcional: Remueve el iframe de precarga específico si ya se abrió formalmente
+                    const preloaded = document.getElementById(`preload-${id}`);
+                    if (preloaded) preloaded.remove();
                 }, 1200);
             };
 
