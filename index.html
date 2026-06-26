@@ -31,7 +31,7 @@
                 <p class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Herramientas Principales</p>
                 <button onclick="cargarApp('app3', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">🧮 Adventistas</button>
                 <button onclick="cargarApp('app4', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">🔍 Marsh PDF</button>
-                <button onclick="cargarApp('app2', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">📦 Generador Masivo cerificados</button>
+                <button onclick="cargarApp('app2', this)" class="sidebar-item w-full text-left px-4 py-3 text-sm rounded-r-lg">📦 Generador Masivo certificados</button>
             </div>
             
             <div class="space-y-2 pt-2">
@@ -75,7 +75,6 @@
             </div>
         </div>
 
-        <!-- Pantalla de error -->
         <div id="error-panel" class="absolute inset-0 flex items-center justify-center bg-white z-10 hidden">
             <div class="text-center max-w-sm">
                 <span class="text-5xl mb-4 block">⚠️</span>
@@ -91,7 +90,6 @@
     </main>
 
     <script>
-        // Preparado para escalar: agrega más apps aquí sin tocar el HTML
         const apps = {
             app1: { url: 'https://normalizador.streamlit.app/?embed=true' },
             app2: { url: 'https://generador-certificados.ops-tools.workers.dev/' },
@@ -102,6 +100,20 @@
 
         let timeoutId = null;
         let appActual = null;
+
+        // Precalienta todas las sesiones de Streamlit al cargar la página
+        async function precalentarApps() {
+            const streamlitApps = Object.values(apps).filter(a => a.url.includes('streamlit.app'));
+            for (const app of streamlitApps) {
+                try {
+                    await fetch(app.url, { mode: 'no-cors', credentials: 'include' });
+                } catch(e) {}
+                // Pausa entre requests para no saturar
+                await new Promise(r => setTimeout(r, 300));
+            }
+        }
+
+        window.addEventListener('load', precalentarApps);
 
         function cargarApp(id, btn) {
             const iframe = document.getElementById('contenedor-apps');
@@ -119,13 +131,13 @@
             errorPanel.classList.add('hidden');
             loader.classList.remove('hidden');
 
-            // Limpiar timeout anterior si existía
             if (timeoutId) clearTimeout(timeoutId);
 
-            iframe.src = apps[id].url;
+            // Reset limpio del iframe antes de reasignar URL
+            iframe.src = '';
+            setTimeout(() => { iframe.src = apps[id].url; }, 100);
 
             iframe.onload = () => {
-                // Pequeño delay para que Streamlit termine de renderizar
                 setTimeout(() => {
                     loader.classList.add('hidden');
                     errorPanel.classList.add('hidden');
@@ -134,12 +146,12 @@
                 }, 1200);
             };
 
-            // Si después de 20s no cargó, mostrar error
+            // 30s de timeout por cold starts de Streamlit Cloud
             timeoutId = setTimeout(() => {
                 loader.classList.add('hidden');
                 iframe.classList.add('hidden');
                 errorPanel.classList.remove('hidden');
-            }, 20000);
+            }, 30000);
         }
 
         function reintentar() {
@@ -165,9 +177,8 @@
             errorPanel.classList.add('hidden');
             bienvenida.classList.remove('hidden');
 
-            iframe.src = "";
+            iframe.src = '';
         }
     </script>
 </body>
-
 </html>
